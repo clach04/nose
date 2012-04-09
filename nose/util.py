@@ -7,7 +7,10 @@ import re
 import sys
 import types
 import unittest
-from compiler.consts import CO_GENERATOR
+try:
+    from compiler.consts import CO_GENERATOR
+except ImportError:
+    CO_GENERATOR = None   # FIXME??
 
 try:
     from cStringIO import StringIO

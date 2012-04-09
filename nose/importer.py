@@ -9,7 +9,13 @@ from __future__ import generators
 import logging
 import os
 import sys
-from imp import find_module, load_module, acquire_lock, release_lock
+from imp import find_module, load_module
+try:
+    from imp import acquire_lock, release_lock
+except ImportError:
+    def acquire_lock():
+        pass
+    release_lock = acquire_lock
 
 log = logging.getLogger(__name__)
 _modules = {}

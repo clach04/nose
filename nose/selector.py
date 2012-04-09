@@ -8,6 +8,23 @@ from nose.util import absfile, file_like, split_test_name, test_address
 
 log = logging.getLogger(__name__)
 
+try:
+    os.path.sep
+except AttributeError:
+    # FIXME VMS support...
+    platform_os = sys.platform
+    if platform_os.find('java') >= 0:
+        # almost certainly Jython
+        java_props = sys.getBaseProperties()
+        platform_os = java_props['os.name']
+        platform_os = platform_os.lower()
+        
+    if platform_os.startswith('win'):
+        # Assume Windows
+        os.path.sep = '\\'
+    else:
+        os.path.sep = '/'
+
 class Selector(object):
     """Core test selector. Examines test candidates and determines whether,
     given the specified configuration, the test candidate should be selected
@@ -250,7 +267,13 @@ class Selector(object):
             log.debug('%s matches ignoreFiles pattern; skipped',
                       base) 
             return False
-        if not self.conf.includeExe and os.access(file, os.X_OK):
+            
+        try:
+            is_access_able = os.access(file, os.X_OK)
+        except AttributeError:
+            is_access_able = True  # guess
+
+        if not self.conf.includeExe and is_access_able:
             log.info('%s is executable; skipped', file)
             return False
         in_tests = self.fileInTests(file)

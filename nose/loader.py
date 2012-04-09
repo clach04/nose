@@ -324,7 +324,11 @@ class TestLoader(unittest.TestLoader):
             # build a closure to run the test, and give it a nice name
             def run(expr=expr):
                 expr[0](*expr[1:])
-            run.__module__ = test.__module__
+            try:
+                run.__module__ = test.__module__
+            except AttributeError:
+                # probably Py 2.2
+                run.__module__ = None
             try:
                 run.__name__ = '%s:%s' % (test.__name__, expr[1:])
             except TypeError:
